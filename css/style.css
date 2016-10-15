@@ -5,19 +5,23 @@ html, body {
 
 #map {
   margin: 10 auto;
-  width: 600px;
-  height: 600px;
+  width: 500px;
+  height: 500px;
+  float: left;
 }
 
-path {
+.d3-map path {
   fill: #000;
   fill-opacity: .2;
   stroke: #fff;
-  /*stroke-width: 0.5px;*/
   stroke-width: 0;
 }
 
-path:hover {
+.d3-map path:hover {
   fill: blue;
   fill-opacity: .7;
+}
+
+footer {
+  height: 25px;
 }

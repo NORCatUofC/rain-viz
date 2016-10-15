@@ -93,11 +93,9 @@ var RainLayer = L.CanvasLayer.extend({
   // HTML Canvas rain effect based off of https://codepen.io/ruigewaard/pen/JHDdF
   // Need to size off of level of zoom
   makeRain: function(gridCell, canvas, speed) {
+    var cbb = canvas.getBoundingClientRect();
     var ctx = canvas.getContext('2d');
     var bb = gridCell.getBoundingClientRect();
-    // Adding slight buffer to remove lingering items, will need to adjust with zoom
-    // Still not quite removing everything
-    ctx.clearRect(bb.left-1, bb.top-1, bb.width+2, bb.height+5);
     var _zoom = this.zoomLevel;
 
     // Need cutoff because extremely low values skew things
@@ -110,9 +108,10 @@ var RainLayer = L.CanvasLayer.extend({
 
     for (var c = 0; c < speed; c++) {
       // Create random locations based off of bounding box off of d3 path location
+      // Need to subtract difference between overall canvas offset and the D3 path
       var r = {
-        x: (Math.random() * bb.width) + bb.left,
-        y: (Math.random() * bb.height) + bb.top,
+        x: (Math.random() * bb.width) + (bb.left - cbb.left),
+        y: (Math.random() * bb.height) + (bb.top - cbb.top),
         l: Math.random() * 1,
         xs: -4 + Math.random() * 4 + 2,
         ys: Math.random() * 20 + 10
@@ -127,8 +126,8 @@ var RainLayer = L.CanvasLayer.extend({
       ctx.stroke();
       // Arbitrary for slight movements
       r.y += 0.1;
-      if (r.x > bb.right || r.y > bb.bottom) {
-        r.x = (Math.random() * bb.width) + bb.left;
+      if (r.x > (bb.right - cbb.left) || r.y > (bb.bottom - cbb.top)) {
+        r.x = (Math.random() * bb.width) + (bb.left - cbb.left);
         r.y = 0;
       }
     }
@@ -148,6 +147,8 @@ var RainLayer = L.CanvasLayer.extend({
     var h = canvas.height;
     var ctx = canvas.getContext('2d');
 
+    // Can clear out whole rect because doing full animationFrames
+    ctx.clearRect(0, 0, w, h);
     // Could scale this color based on intensity as well
     ctx.strokeStyle = 'rgba(174,194,224,0.5)';
     this.zoomLevel = map.getZoom();

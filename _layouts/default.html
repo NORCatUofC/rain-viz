@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  {% include head.html %}
+  <body>
+    {% include header.html %}
+    <div class="container-fluid">
+      {{ content }}
+    </div>
+    {% include footer.html %}
+  </body>
+  {% if page.js_file %}
+  <script src="{{ site.baseurl }}/js/{{ page.js_file }}"></script>
+  {% endif %}
+</html>

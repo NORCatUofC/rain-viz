@@ -1,3 +1,6 @@
 port: 5000
 encoding: utf-8
+url: "https://norcatuofc.github.io"
 baseurl: /rain-viz
+title: Rain Viz
+description: Visualizing the impact of increasing rain intensity across Chicago.

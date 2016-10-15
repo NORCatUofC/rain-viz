@@ -1,51 +1,11 @@
 ---
+layout: default
+js_file: script.js
+title: Rain Viz
+permalink: /
 ---
 
-<!DOCTYPE html>
-<html>
-  <head>
-  	<meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  	<link rel="icon" href="favicon.ico" type="image/x-icon"/>
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <meta charset='utf-8' />
-    <!-- Placeholder metadata -->
-    <meta content="Visualizing the impact of increasing rain intensity across Chicago." name='description' />
-    <!-- Facebook metadata -->
-    <meta content="Rain Viz" property="og:site_name">
-    <meta content="Rain Viz" property="og:title">
-    <meta content="website" property="og:type">
-    <meta content="Visualizing the impact of increasing rain intensity across Chicago." property="og:description">
-    <!-- <meta content="http://NORCatUofC.github.io/rain-viz" property="og:url"> -->
-    <!-- <meta content="http://NORCatUofC.github.io/rain-viz/img/logo.png" property="og:image"> -->
-    <!-- Twitter metadata -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:site" content="Rain Viz">
-    <meta name="twitter:creator" content="Rain Viz">
-    <meta name="twitter:title" content="Rain Viz">
-    <!-- <meta name="twitter:url" content="http://NORCatUofC.github.io/rain-viz"> -->
-    <meta name="twitter:description" content="Visualizing the impact of increasing rain intensity across Chicago.">
-    <!-- <meta name="twitter:image:src" content=""> -->
-
-  	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" /> -->
-    <link rel="stylesheet" href="{{ site.baseurl }}/css/leaflet.css" />
-  	<link rel="stylesheet" href="{{ site.baseurl }}/css/style.css">
-  	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.js"></script>
-    <!-- Doesn't work with Leaflet 1.0, will have to figure out why -->
-    <!-- <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script> -->
-    <script src="{{ site.baseurl }}/js/leaflet.js"></script>
-    <!-- <script src="{{ site.baseurl }}/js/d3.min.js"></script> -->
-    <script src="https://d3js.org/d3.v3.min.js"></script>
-    <script src="{{ site.baseurl }}/js/leaflet_canvas_layer.js"></script>
-  	<title>Rain Viz</title>
-  </head>
-  <body>
-    <div id="map"></div>
-    <p id="date"></p>
-  </body>
-  <script src="{{ site.baseurl }}/js/script.js"></script>
-</html>
+<div class="col-xs-8 col-xs-offset-2">
+  <h1 id="date"></h1>
+  <div id="map" class="d3-map"></div>
+</div>
