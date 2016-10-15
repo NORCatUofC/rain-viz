@@ -14,21 +14,26 @@ var floodLayer = L.tileLayer("https://s3.amazonaws.com/chi-311-flooding/chi_311_
 var basementFloodLayer = L.tileLayer("https://s3.amazonaws.com/chi-311-flooding/chi_311_flooding_basement_tiles/{z}/{x}/{y}.png");
 
 function zipStyleFunc(feature) {
-  return {color: '#bc1818', weight: 0.75, fillOpacity: 0.0};
+  return {color: '#bc1818', fillColor: '#bc1818', weight: 0.75, fillOpacity: 0.0};
 }
 function commStyleFunc(feature) {
-  return {color: '#31890f', weight: 0.75, fillOpacity: 0.0};
-}
-function onEachFunc(feature, layer) {
-  layer.bindPopup("<strong>Zip:</strong> " + feature.properties.zip);
+  return {color: '#31890f', fillColor: '#31890f', weight: 0.75, fillOpacity: 0.0};
 }
 
 var zipLayer = new L.geoJson(null, {style: zipStyleFunc, onEachFeature: function(feature, layer) {
   layer.bindPopup("<strong>Zip:</strong> " + feature.properties.zip);
+  layer.on({
+        mouseover: function(e) { layer.setStyle({fillOpacity: 0.4});},
+        mouseout: function(e) { layer.setStyle({fillOpacity: 0.0});}
+  });
 }});
 
 var commLayer = new L.geoJson(null, {style: commStyleFunc, onEachFeature: function(feature, layer) {
   layer.bindPopup("<strong>Community Area:</strong> " + feature.properties.comm_area);
+  layer.on({
+        mouseover: function(e) { layer.setStyle({fillOpacity: 0.4});},
+        mouseout: function(e) { layer.setStyle({fillOpacity: 0.0});}
+  });
 }});
 
 var heatmapLayers = {"All Flooding Calls": floodLayer, "Basement Flooding Calls": basementFloodLayer};
