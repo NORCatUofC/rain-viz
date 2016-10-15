@@ -67,8 +67,10 @@ var RainLayer = L.CanvasLayer.extend({
   makeRain: function(gridCell, canvas, speed) {
     var ctx = canvas.getContext('2d');
     var bb = gridCell.getBoundingClientRect();
-    ctx.clearRect(bb.left, bb.top, bb.width, bb.height);
+    // Adding slight buffer to remove lingering items, will need to adjust with zoom
+    ctx.clearRect(bb.left-1, bb.top-1, bb.width+2, bb.height+5);
     var rainArr = this.rainArray;
+    var _zoom = this.zoomLevel;
 
     for(var c = 0; c < rainArr.length; c++) {
       var r = {
@@ -80,11 +82,12 @@ var RainLayer = L.CanvasLayer.extend({
       };
       ctx.beginPath();
       ctx.moveTo(r.x, r.y);
-      // ctx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);
-      ctx.lineTo(r.x, r.y + 3);
+
+      var yEnd = r.y + (_zoom / 3);
+
+      ctx.lineTo(r.x, yEnd);
       ctx.stroke();
-      r.y += (speed / (rainArr.length * 1.5)) * bb.height;
-      // r.y += r.ys;
+      r.y += 0.1;
       if (r.x > bb.right || r.y > bb.bottom) {
         r.x = (Math.random() * bb.width) + bb.left;
         r.y = 0;
@@ -96,7 +99,7 @@ var RainLayer = L.CanvasLayer.extend({
     var gridCells = d3.selectAll("path")[0];
     var current = new Date().getTime();
     for (var i = 0; i < gridCells.length; ++i) {
-      var delta = current - _times[i];
+      var delta = (current - _times[i]) + i;
       if (delta > 100) {
         this.makeRain(gridCells[i], canvas, i);
         _times[i] = new Date().getTime();
@@ -113,10 +116,13 @@ var RainLayer = L.CanvasLayer.extend({
 
     // Could scale this color based on intensity as well
     ctx.strokeStyle = 'rgba(174,194,224,0.5)';
+    this.zoomLevel = map.getZoom();
     ctx.lineWidth = 1;
+    if (map.getZoom() > 10) {
+      ctx.lineWidth = map.getZoom() - 10;
+    }
     ctx.lineCap = 'round';
 
-    // var init = [];
     this.rainArray = [];
     var _rainArr = this.rainArray;
 

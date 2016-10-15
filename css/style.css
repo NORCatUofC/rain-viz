@@ -13,7 +13,8 @@ path {
   fill: #000;
   fill-opacity: .2;
   stroke: #fff;
-  stroke-width: 0.5px;
+  /*stroke-width: 0.5px;*/
+  stroke-width: 0;
 }
 
 path:hover {
