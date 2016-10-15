@@ -6,7 +6,7 @@ var map = L.map('map', {
   maxBounds: [[41.644335, -87.940267], [42.0231311, -87.524044]]
 });
 
-L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
   { attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>' }
 ).addTo(map);
 
