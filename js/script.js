@@ -5,7 +5,7 @@ var baseLayer = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{
 var map = L.map('map', {
   center: [41.88, -87.63],
   zoom: 10,
-  minZoom: 9,
+  minZoom: 10,
   maxZoom: 16,
   maxBounds: [[41.644335, -87.940267], [42.0231311, -87.524044]]
 });
@@ -58,35 +58,74 @@ function projectPoint(x, y) {
   this.stream.point(point.x, point.y);
 }
 
-// Need to figure out how to redraw existing random rain items on map move without
-// starting over, and another way of making it slower without this interval
+
+// Declare global variables for going through timestamps
+// Need to refine this, make into actual time scale potentially, but
+// currently the timestamps are regular by hour
+var timeIdx = 0;
+var dataset = [];
+var timeRow = [];
+var dateNotice = document.getElementById("date");
+
+d3.csv("data/chi_grid_1mo_hr.csv", function(data) {
+   dataset = data.map(function(d) {
+     // Overly complicated one-liner to get the timestamp as first item, then get
+     // array of all values in order without keys
+     return [d["timestamp"]].concat(Object.keys(d).slice(0,-1).map(function(k){return parseFloat(d[k]);}));
+   });
+});
+
+// Iterates through rows of CSV with timestamps, resets on end
+function updateTime() {
+  if (timeIdx === dataset.length) {
+    timeIdx = -1;
+  }
+  if (dataset.length > 0) {
+    timeIdx += 1;
+    timeRow = dataset[timeIdx];
+    dateNotice.innerText = timeRow[0];
+  }
+}
+setInterval(updateTime, 100);
+
+
 var RainLayer = L.CanvasLayer.extend({
-  rainArray: [],
   // HTML Canvas rain effect based off of https://codepen.io/ruigewaard/pen/JHDdF
   // Need to size off of level of zoom
   makeRain: function(gridCell, canvas, speed) {
     var ctx = canvas.getContext('2d');
     var bb = gridCell.getBoundingClientRect();
     // Adding slight buffer to remove lingering items, will need to adjust with zoom
+    // Still not quite removing everything
     ctx.clearRect(bb.left-1, bb.top-1, bb.width+2, bb.height+5);
-    var rainArr = this.rainArray;
     var _zoom = this.zoomLevel;
 
-    for(var c = 0; c < rainArr.length; c++) {
+    // Need cutoff because extremely low values skew things
+    if (timeRow[speed+1] > 0.1) {
+      speed = Math.floor(timeRow[speed + 1] * 100);
+    }
+    else {
+      speed = 0;
+    }
+
+    for (var c = 0; c < speed; c++) {
+      // Create random locations based off of bounding box off of d3 path location
       var r = {
-        x: (rainArr[c].x * bb.width) + bb.left,
-        y: (rainArr[c].y * bb.height) + bb.top,
-        l: rainArr[c].l * 1,
-        xs: -4 + rainArr[c].xs * 4 + 2,
-        ys: rainArr[c].ys * 20 + 10
+        x: (Math.random() * bb.width) + bb.left,
+        y: (Math.random() * bb.height) + bb.top,
+        l: Math.random() * 1,
+        xs: -4 + Math.random() * 4 + 2,
+        ys: Math.random() * 20 + 10
       };
       ctx.beginPath();
       ctx.moveTo(r.x, r.y);
 
-      var yEnd = r.y + (_zoom / 3);
+      // Scale length based on zoom value
+      var yEnd = r.y + (((_zoom-10)+1)* 3);
 
       ctx.lineTo(r.x, yEnd);
       ctx.stroke();
+      // Arbitrary for slight movements
       r.y += 0.1;
       if (r.x > bb.right || r.y > bb.bottom) {
         r.x = (Math.random() * bb.width) + bb.left;
@@ -95,19 +134,14 @@ var RainLayer = L.CanvasLayer.extend({
     }
   },
   rainScaling: function(canvas) {
-    var _times = this.startTimes;
     var gridCells = d3.selectAll("path")[0];
-    var current = new Date().getTime();
-    for (var i = 0; i < gridCells.length; ++i) {
-      var delta = (current - _times[i]) + i;
-      if (delta > 100) {
+    // Make sure timeRow has been populated, if so, run
+    if (timeRow.length > 0) {
+      for (var i = 0; i < gridCells.length; ++i) {
         this.makeRain(gridCells[i], canvas, i);
-        _times[i] = new Date().getTime();
       }
     }
   },
-  // Need to have separate start time for each cell
-  startTimes: Array(365).fill(new Date().getTime()),
   render: function() {
     var canvas = this.getCanvas();
     var w = canvas.width;
@@ -118,25 +152,12 @@ var RainLayer = L.CanvasLayer.extend({
     ctx.strokeStyle = 'rgba(174,194,224,0.5)';
     this.zoomLevel = map.getZoom();
     ctx.lineWidth = 1;
+    // Scale lineWidth based on zoom
     if (map.getZoom() > 10) {
       ctx.lineWidth = map.getZoom() - 10;
     }
     ctx.lineCap = 'round';
 
-    this.rainArray = [];
-    var _rainArr = this.rainArray;
-
-    // Here's where density of rain can be increased
-    var maxParts = 15;
-    for(var a = 0; a < maxParts; a++) {
-      _rainArr.push({
-        x: Math.random(),
-        y: Math.random(),
-        l: Math.random(),
-        xs: Math.random(),
-        ys: Math.random()
-      });
-    };
     this.rainScaling(canvas);
     this.redraw();
   },
