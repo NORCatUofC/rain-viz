@@ -44,6 +44,27 @@ label {
   fill-opacity: .7;
 }
 
+.info {
+    padding: 6px 8px;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    max-width: 250px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #777;
+}
+.info i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.8;
+}
+
 footer {
   height: 25px;
 }
