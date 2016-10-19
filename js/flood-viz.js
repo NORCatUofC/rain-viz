@@ -14,10 +14,10 @@ var floodLayer = L.tileLayer("https://s3.amazonaws.com/chi-311-flooding/chi_311_
 var basementFloodLayer = L.tileLayer("https://s3.amazonaws.com/chi-311-flooding/chi_311_flooding_basement_tiles/{z}/{x}/{y}.png");
 
 function zipStyleFunc(feature) {
-  return {color: '#bc1818', fillColor: '#bc1818', weight: 0.75, fillOpacity: 0.0};
+  return {color: '#31890f', fillColor: '#31890f', weight: 0.75, fillOpacity: 0.0};
 }
 function commStyleFunc(feature) {
-  return {color: '#31890f', fillColor: '#31890f', weight: 0.75, fillOpacity: 0.0};
+  return {color: '#bc1818', fillColor: '#bc1818', weight: 0.75, fillOpacity: 0.0};
 }
 // Styling for choropleth layers
 function getZipColor(d) {
