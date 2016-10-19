@@ -12,14 +12,39 @@ var map = L.map('map', {
 
 map.addLayer(baseLayer);
 
+var info = L.control({position: "bottomleft"});
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this._div.innerHTML = '<h4>Legend</h4>' +
+      '<p>Grey animation is rain scaled by intensity</p>' +
+      '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">'  +
+      '<circle cx="8" cy="8" r="8" fill="blue"/>' +
+  		'</svg><span>Basement Flooding</span></p>' +
+  		'<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">' +
+  			'<circle cx="8" cy="8" r="8" fill="red"/>' +
+  		'</svg><span>Street Flooding</span></p>';
+    return this._div;
+};
+
+info.addTo(map);
+
 // Based off of http://bl.ocks.org/pbogden/16417ea36900f44710b2
+// Declare global variables for going through timestamps
+// Need to refine this, make into actual time scale potentially, but
+// currently the timestamps are regular by hour
 var svg = d3.select(map.getPanes().overlayPane).append("svg"),
     g = svg.append("g").attr("class", "leaflet-zoom-hide");
+var timeIdx = 0;
+var dataset = [];
+var timeRow = [];
+var dateNotice = document.getElementById("date");
+var unixDate = 1470286800;
+var transform = d3.geo.transform({point: projectPoint}),
+    path = d3.geo.path().projection(transform);
+var pathBounds = {};
 
 d3.json("data/chicago_grid.topojson", function(error, grid) {
-  var transform = d3.geo.transform({point: projectPoint}),
-      path = d3.geo.path().projection(transform);
-
   var features = grid.objects.chicago_grid.geometries.map(function(d) {
     return topojson.feature(grid, d);
   });
@@ -51,21 +76,49 @@ d3.json("data/chicago_grid.topojson", function(error, grid) {
   }
 });
 
+d3.json("data/comm_bboxes.topojson", function(error, bboxes) {
+  var features = bboxes.objects.comm_bboxes.geometries.map(function(d) {
+    return topojson.feature(bboxes, d);
+  });
+  var all = topojson.merge(bboxes, bboxes.objects.comm_bboxes.geometries);
+
+  var cells = g.selectAll("path")
+      .data(features)
+      .enter()
+      .append("path")
+      .attr("fill-opacity",0);
+
+  map.on("viewreset", reset);
+  reset();
+
+  // Reposition the SVG to cover the features.
+  function reset() {
+    var bounds = path.bounds(all),
+        topLeft = bounds[0],
+        bottomRight = bounds[1];
+
+    svg.attr("width", bottomRight[0] - topLeft[0])
+       .attr("height", bottomRight[1] - topLeft[1])
+       .style("left", topLeft[0] + "px")
+       .style("top", topLeft[1] + "px");
+
+    g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+    cells.attr("d", path);
+    cells.append("canvas");
+  }
+  g.selectAll("path").each(function(d) {
+    pathBounds[d.properties.comm_area] = path.bounds(d);
+  });
+  addCallData();
+});
+
 // Use Leaflet to implement a D3 geometric transformation.
 function projectPoint(x, y) {
   // Returns the map layer point that corresponds to the given geographical coordinates
   var point = map.latLngToLayerPoint(new L.LatLng(y, x));
   this.stream.point(point.x, point.y);
 }
-
-
-// Declare global variables for going through timestamps
-// Need to refine this, make into actual time scale potentially, but
-// currently the timestamps are regular by hour
-var timeIdx = 0;
-var dataset = [];
-var timeRow = [];
-var dateNotice = document.getElementById("date");
 
 d3.csv("data/chi_grid_1mo_hr.csv", function(data) {
    dataset = data.map(function(d) {
@@ -79,10 +132,12 @@ d3.csv("data/chi_grid_1mo_hr.csv", function(data) {
 function updateTime() {
   if (timeIdx === dataset.length) {
     timeIdx = -1;
+    unixDate = 1470286800;
   }
   if (dataset.length > 0) {
     timeIdx += 1;
     timeRow = dataset[timeIdx];
+    unixDate = Math.floor(new Date(dataset[timeIdx][0])/1000);
     dateNotice.innerText = timeRow[0];
   }
 }
@@ -206,3 +261,60 @@ var RainLayer = L.CanvasLayer.extend({
 
 var rainLayer = new RainLayer();
 rainLayer.addTo(map);
+
+function makeBounds(comm) {
+  var bounds = pathBounds[comm];
+  return {
+    x: (Math.random() * (bounds[1][0] - bounds[0][0])) + bounds[0][0],
+    y: (Math.random() * (bounds[1][1] - bounds[0][1])) + bounds[0][1]
+  };
+}
+
+// Based off of http://chriswhong.com/projects/phillybiketheft/
+function addCallData() {
+  d3.csv("data/flood_calls_30min_1mo.csv", function(collection) {
+    /* Add a LatLng object to each item in the dataset */
+    collection.forEach(function(d) {
+      var loc = makeBounds(d.comm_area);
+      d.UnixDate = Math.floor(new Date(d.timestamp)/1000);
+      d.LatLng = new L.LatLng(loc.y,loc.x);
+      d.x = loc.x;
+      d.y = loc.y;
+    });
+
+    var filtered = collection.filter(function(d){
+      return (d.UnixDate < 1474002001);
+    });
+
+
+    function update() {
+      if (unixDate >= 1474002001) {
+        clearTimeout();
+      }
+      grab = collection.filter(function(d){
+        // Get calls which are within the hour of the current index
+        return (d.UnixDate <= unixDate)&&(d.UnixDate > (unixDate - 3600));
+      });
+      filtered = grab;
+      var feature = g.selectAll("circle")
+        .data(filtered,function(d){
+          return d.comm_area;
+        });
+      feature.enter().append("circle").attr("fill",function(d){
+        if(d.call_type=='Water in Basement') return "blue";
+        if(d.call_type=='Water in Street') return "red";
+      }).attr("r",0).transition().duration(100).attr("r",function(d){
+        return map.getZoom();
+      });
+
+      feature.exit().transition().duration(250).attr("r",0).remove();
+
+      feature.attr("cx",function(d) { return d.x});
+      feature.attr("cy",function(d) { return d.y});
+
+      setTimeout(update,100);
+    }
+
+    update();
+  });
+}
