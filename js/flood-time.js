@@ -115,7 +115,10 @@ d3.csv("data/flood_calls_30min_1mo.csv", function(collection) {
       return map.getZoom();
     });
 
-    feature.exit().transition().duration(250).attr("r",0).remove();
+    feature.exit().transition().duration(350)
+      .attr("r",function(d){return map.getZoom()/2;})
+      .style("opacity",0)
+      .remove();
 
     feature.attr("cx",function(d) { return d.x});
     feature.attr("cy",function(d) { return d.y});
