@@ -39,11 +39,6 @@ label {
   stroke-width: 0;
 }
 
-.d3-map path:hover {
-  fill: blue;
-  fill-opacity: .7;
-}
-
 .info {
     padding: 6px 8px;
     background: white;
