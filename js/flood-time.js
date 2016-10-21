@@ -90,18 +90,13 @@ function addCallData() {
       showDateTime(time);
 
       grab = collection.filter(function(d){
-        return (d.UnixDate <= time)&&(d.UnixDate > previousTime);
+        return (d.UnixDate <= time)&&(d.UnixDate > previousTime)&&(d.call_type==='Water in Basement');
       });
       filtered = grab;
 
-      var feature = g.selectAll("circle")
-        .data(filtered,function(d){
-        return d.UnixDate;
-      });
-      feature.enter().append("circle").attr("fill",function(d){
-        if(d.call_type=='Water in Basement') return "blue";
-        if(d.call_type=='Water in Street') return "red";
-      }).attr("r",10);
+      // Return ID as value, so that even if the timestamp exists already still adds
+      var feature = g.selectAll("circle").data(filtered, function(d) {return d.id;});
+      feature.enter().append("circle").attr("fill","blue").attr("r",10);
 
       map.on("viewreset",updatePoint);
       updatePoint();
@@ -124,7 +119,7 @@ function addCallData() {
       newDate.setTime(unixtime*1000);
       dateString = newDate.toString();
       dateString = dateString.slice(0,21);
-      document.getElementById("timestamp").innerHTML = dateString;
+      document.getElementById("timestamp").innerHTML = newDate.toLocaleDateString() + ' ' + newDate.toLocaleTimeString();
     }
     update();
     setInterval(update,100);

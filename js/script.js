@@ -20,10 +20,10 @@ info.onAdd = function (map) {
       '<p>Grey animation is rain scaled by intensity</p>' +
       '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">'  +
       '<circle cx="8" cy="8" r="8" fill="blue"/>' +
-  		'</svg><span>Basement Flooding</span></p>' +
-  		'<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">' +
-  			'<circle cx="8" cy="8" r="8" fill="red"/>' +
-  		'</svg><span>Street Flooding</span></p>';
+  		'</svg><span>Basement Flooding</span></p>';
+  		// '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">' +
+  		// 	'<circle cx="8" cy="8" r="8" fill="red"/>' +
+  		// '</svg><span>Street Flooding</span></p>';
     return this._div;
 };
 
@@ -125,14 +125,14 @@ d3.csv("data/chi_grid_1mo_hr.csv", function(data) {
 // Iterates through rows of CSV with timestamps, resets on end
 function updateTime() {
   if (timeIdx === dataset.length) {
-    timeIdx = -1;
+    timeIdx = 0;
     unixDate = 1470286800;
   }
   if (dataset.length > 0) {
-    timeIdx += 1;
     timeRow = dataset[timeIdx];
     unixDate = Math.floor(new Date(dataset[timeIdx][0])/1000);
     dateNotice.innerText = timeRow[0];
+    timeIdx += 1;
   }
 }
 setInterval(updateTime, 100);
@@ -273,34 +273,19 @@ function addCallData() {
       d.LatLng = new L.LatLng(loc.y,loc.x);
     });
 
-    var time = 1470286800;
-    var previousTime;
-
     var filtered = collection.filter(function(d){
       return (d.UnixDate < 1474002001);
     });
 
-    // NEED TO RESET VIEW LIKE IN ABOVE LAYER
     function update() {
-      previousTime = time;
-      time = time + 1800;//86400;
-      if (time >= 1474002001) {
-        clearInterval();
-      }
-
       grab = collection.filter(function(d){
-        return (d.UnixDate <= time)&&(d.UnixDate > previousTime);
+        return (d.UnixDate <= unixDate)&&(d.UnixDate > (unixDate - 3600))&&(d.call_type=='Water in Basement');
       });
       filtered = grab;
 
-      var feature = commG.selectAll("circle")
-        .data(filtered,function(d){
-        return d.UnixDate;
-      });
-      feature.enter().append("circle").attr("fill",function(d){
-        if(d.call_type=='Water in Basement') return "blue";
-        if(d.call_type=='Water in Street') return "red";
-      }).attr("r",10);
+      // Return ID as value, so that even if the timestamp exists already still adds
+      var feature = commG.selectAll("circle").data(filtered, function(d) {return d.id;});
+      feature.enter().append("circle").attr("fill","blue").attr("r",10);
 
       map.on("viewreset",updatePoint);
       updatePoint();
