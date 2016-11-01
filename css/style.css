@@ -7,7 +7,7 @@ body, .leaflet-container {
 }
 
 /* Reducing Leaflet control z-index so that it's covered by nav */
-.leaflet-top.leaflet-left {
+.leaflet-top.leaflet-left, .leaflet-top.leaflet-right {
   z-index: 1;
 }
 
