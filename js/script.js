@@ -282,7 +282,7 @@ function addCallData() {
 
       // Return ID as value, so that even if the timestamp exists already still adds
       var feature = commG.selectAll("circle").data(filtered, function(d) {return d.id;});
-      feature.enter().append("circle").attr("fill","blue").attr("r",5).style("opacity",0.75);
+      feature.enter().append("circle").attr("fill","#3366ff").attr("r",5).style("opacity",0.75);
 
       map.on("viewreset",updatePoint);
       updatePoint();

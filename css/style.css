@@ -45,6 +45,14 @@ label {
   font-weight: 600;
 }
 
+#info path {
+  fill: #F4F4F4;
+}
+
+#info:hover circle {
+  fill: #565555;
+}
+
 #map {
   position: absolute;
   top: 48px;
@@ -62,6 +70,12 @@ label {
   border-radius: 5px;
   background: rgba(255,255,255,0.7);
   text-align: center;
+}
+
+#info {
+  position: absolute;
+  top: 65px;
+  right: 15px;
 }
 
 .time-header {
