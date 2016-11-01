@@ -21,9 +21,6 @@ info.onAdd = function (map) {
       '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">'  +
       '<circle cx="8" cy="8" r="8" fill="blue"/>' +
   		'</svg><span>Basement Flooding</span></p>';
-  		// '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">' +
-  		// 	'<circle cx="8" cy="8" r="8" fill="red"/>' +
-  		// '</svg><span>Street Flooding</span></p>';
     return this._div;
 };
 
@@ -285,7 +282,7 @@ function addCallData() {
 
       // Return ID as value, so that even if the timestamp exists already still adds
       var feature = commG.selectAll("circle").data(filtered, function(d) {return d.id;});
-      feature.enter().append("circle").attr("fill","blue").attr("r",10);
+      feature.enter().append("circle").attr("fill","blue").attr("r",5).style("opacity",0.75);
 
       map.on("viewreset",updatePoint);
       updatePoint();

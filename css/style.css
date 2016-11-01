@@ -1,5 +1,4 @@
 html, body {
-  height: 100%;
   width: 100%;
 }
 
@@ -7,25 +6,62 @@ body, .leaflet-container {
   font: 14px/1.5 "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+/* Reducing Leaflet control z-index so that it's covered by nav */
+.leaflet-top.leaflet-left {
+  z-index: 1;
+}
+
+.navbar-default, div.navbar-header, div.navbar-collapse, div.container-fluid {
+  background-color: #565555;
+  border: none;
+}
+
+.navbar-default .navbar-nav>li>a {
+  color: #F4F4F4;
+  font-weight: bold;
+}
+
+.navbar-default .navbar-nav>li>a:hover {
+  color: #D1D1D1;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #F4F4F4;
+}
+
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+  background-color: inherit;
+}
+
+.navbar-default .navbar-toggle, .navbar-header {
+  border: none;
+}
+
+.navbar-collapse>ul>li {
+  text-align: right;
+}
+
 label {
   font-weight: 600;
 }
 
-.container-fluid {
-  height: 80%;
-}
-
-.map-container {
-  height: 90%;
-}
-
 #map {
-  height: 100%;
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
-#map {
-  margin: 10 auto;
-  width: 100%;
+#date {
+  position: absolute;
+  top: 50px;
+  right: 35%;
+  left: 35%;
+  padding: 10px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.7);
+  text-align: center;
 }
 
 .time-header {
@@ -40,16 +76,15 @@ label {
 }
 
 .info {
-    padding: 6px 8px;
-    background: white;
-    background: rgba(255,255,255,0.7);
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    max-width: 250px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  max-width: 250px;
 }
 .info h4 {
-    margin: 0 0 5px;
-    font-size: 16px;
-    font-weight: bold;
+  margin: 0 0 5px;
+  font-size: 16px;
+  font-weight: bold;
 }
 .info i {
   width: 18px;
