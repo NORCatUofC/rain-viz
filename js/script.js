@@ -43,6 +43,7 @@ var transform = d3.geo.transform({point: projectPoint}),
     path = d3.geo.path().projection(transform);
 var pathBounds = {};
 var commAll;
+var intervalStep = 200;
 
 d3.json("data/chicago_grid.topojson", function(error, grid) {
   var features = grid.objects.chicago_grid.geometries.map(function(d) {
@@ -111,7 +112,7 @@ function projectPoint(x, y) {
   this.stream.point(point.x, point.y);
 }
 
-d3.csv("data/chi_grid_1mo_hr.csv", function(data) {
+d3.csv("data/april_2013_grid_15min.csv", function(data) {
    dataset = data.map(function(d) {
      // Overly complicated one-liner to get the timestamp as first item, then get
      // array of all values in order without keys
@@ -120,6 +121,7 @@ d3.csv("data/chi_grid_1mo_hr.csv", function(data) {
 });
 
 // Iterates through rows of CSV with timestamps, resets on end
+// Now CSV is every 15 minutes
 function updateTime() {
   if (timeIdx === dataset.length) {
     timeIdx = 0;
@@ -132,7 +134,7 @@ function updateTime() {
     timeIdx += 1;
   }
 }
-setInterval(updateTime, 100);
+setInterval(updateTime, intervalStep);
 
 
 var RainLayer = L.CanvasLayer.extend({
@@ -145,8 +147,9 @@ var RainLayer = L.CanvasLayer.extend({
     var _zoom = this.zoomLevel;
 
     // Need cutoff because extremely low values skew things
+    // Increasing from 100 to 200 because doing 15 minutes instead of an hour
     if (timeRow[speed+1] > 0.1) {
-      speed = Math.floor(timeRow[speed + 1] * 100);
+      speed = Math.floor(timeRow[speed + 1] * 200);
     }
     else {
       speed = 0;
@@ -262,7 +265,7 @@ function makePoint(bounds) {
 
 function addCallData() {
   // Based off of http://chriswhong.com/projects/phillybiketheft/
-  d3.csv("data/flood_calls_30min_1mo.csv", function(collection) {
+  d3.csv("data/april_2013_wib_calls.csv", function(collection) {
     /* Add a LatLng object to each item in the dataset */
     collection.forEach(function(d) {
       var loc = makePoint(pathBounds[d.comm_area]);
@@ -270,13 +273,10 @@ function addCallData() {
       d.LatLng = new L.LatLng(loc.y,loc.x);
     });
 
-    var filtered = collection.filter(function(d){
-      return (d.UnixDate < 1474002001);
-    });
-
     function update() {
       grab = collection.filter(function(d){
-        return (d.UnixDate <= unixDate)&&(d.UnixDate > (unixDate - 3600))&&(d.call_type=='Water in Basement');
+        // Changing unix diff to 15 minutes (900)
+        return (d.UnixDate <= unixDate)&&(d.UnixDate > (unixDate - 900));
       });
       filtered = grab;
 
@@ -294,12 +294,12 @@ function addCallData() {
         });
       }
 
-      feature.exit().transition().duration(350)
+      feature.exit().transition().duration(500)
         .attr("r",function(d){return map.getZoom()/2;})
         .style("opacity",0)
         .remove();
     }
     update();
-    setInterval(update,100);
+    setInterval(update, intervalStep);
   });
 }
