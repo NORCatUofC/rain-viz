@@ -34,6 +34,11 @@ var linearGradient = defs.append("linearGradient")
 // Same color at beginning and end for smooth transition
 var colors = ["#f39c12", "#fcd9b0", "#f39c12"];
 
+var transform;
+var path;
+var feature;
+var csoData;
+
 linearGradient.selectAll(".stop")
 	.data(colors)
 	.enter().append("stop")
@@ -53,17 +58,9 @@ linearGradient.append("animate")
 	.attr("repeatCount","indefinite");
 
 d3.json("data/mwrd_riverways.geojson", function(data) {
-  var transform = d3.geo.transform({point: projectPoint}),
-      path = d3.geo.path().projection(transform);
-
-  var feature = g.selectAll("path")
-    .data(data.features)
-    .enter()
-    .append("path")
-    .attr("d", path)
-    .style("fill-opacity", 0)
-    .attr("stroke-width", 3)
-    .attr("stroke", "url(#animate-gradient)");
+  transform = d3.geo.transform({point: projectPoint});
+  path = d3.geo.path().projection(transform);
+  csoData = data;
 
   map.on("viewreset", reset);
   reset();
@@ -80,11 +77,76 @@ d3.json("data/mwrd_riverways.geojson", function(data) {
 
     g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
 
-    feature.attr("d", path);
+    if (feature != undefined) {
+      feature.attr("d", path);
+    }
   }
 
   function projectPoint(x, y) {
     var point = map.latLngToLayerPoint(new L.LatLng(y, x));
     this.stream.point(point.x, point.y);
   }
+  addEventData();
 });
+
+
+function addEventData() {
+  d3.csv("data/april_2013_cso.csv", function(collection) {
+    var csoFeatures = collection.map(function(d) {
+      var feature = getSegment(parseInt(d.river_segment_id));
+      if (feature !== null) {
+        feature.properties.unixOpen = Math.floor(new Date(d.open_timestamp)/1000);
+        feature.properties.unixClose = Math.floor(new Date(d.close_timestamp)/1000);
+        return feature;
+      }
+      return null;
+    }).filter(function(d) { return d != null; });
+
+    var time = 1366174800;
+    var previousTime;
+
+    function getSegment(segmentId) {
+      var feature = null;
+      csoData.features.forEach(function(d) {
+        if (d.properties.SEGMENT_ID === segmentId) {
+          feature = d;
+        }
+      });
+      return feature;
+    }
+
+    function update() {
+      previousTime = time;
+      // increment unix time by 5 minutes
+      time += 300;
+      if (time >= 1366520400) {
+        clearInterval();
+      }
+
+      grab = csoFeatures.filter(function(d){
+        return (d.properties.unixClose >= time)&&(d.properties.unixOpen <= time);
+      });
+      filtered = grab;
+
+      // Return ID as value, so that even if the timestamp exists already still adds
+      feature = g.selectAll("path")
+        .data(filtered, function(d) { return d.properties.SEGMENT_ID});
+
+      feature.enter()
+        .append("path")
+        .attr("d", path)
+        .style("fill-opacity", 0)
+        .attr("stroke-width", 3)
+        .attr("stroke", "url(#animate-gradient)");
+
+      feature.exit()
+        .transition()
+        .duration(350)
+        .style("opacity",0)
+        .remove();
+    }
+
+    update();
+    setInterval(update,100);
+  });
+}

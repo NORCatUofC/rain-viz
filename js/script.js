@@ -18,8 +18,8 @@ info.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
     this._div.innerHTML = '<h4>Legend</h4>' +
       '<p>Grey animation is rain scaled by intensity</p>' +
-      '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:16px; height:16px">'  +
-      '<circle cx="8" cy="8" r="8" fill="blue"/>' +
+      '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:10px; height:10px">'  +
+      '<circle cx="5" cy="5" r="5" fill="#3366ff"/>' +
   		'</svg><span>Basement Flooding</span></p>';
     return this._div;
 };
