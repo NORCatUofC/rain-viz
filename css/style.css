@@ -82,7 +82,7 @@ label {
   text-align: center;
 }
 
-.d3-map path {
+.d3-map path.rain-cell {
   fill: #000;
   fill-opacity: 0;
   stroke: #fff;
@@ -109,6 +109,11 @@ label {
 }
 .info p svg {
   margin-right: 8px;
+}
+
+#legend-canvas {
+  width: 15px;
+  height: 15px;
 }
 
 footer {

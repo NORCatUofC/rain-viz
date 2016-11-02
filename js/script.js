@@ -17,7 +17,7 @@ var info = L.control({position: "bottomleft"});
 info.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
     this._div.innerHTML = '<h4>Legend</h4>' +
-      '<p>Grey animation is rain scaled by intensity</p>' +
+      '<p><canvas id="legend-canvas"></canvas> Rain by intensity</p>' +
       '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:10px; height:10px">'  +
       '<circle cx="5" cy="5" r="5" fill="#3366ff"/>' +
   		'</svg><span>Basement Flooding</span></p>';
@@ -32,18 +32,59 @@ info.addTo(map);
 // currently the timestamps are regular by hour
 var svg = d3.select(map.getPanes().overlayPane).append("svg"),
     commSvg = d3.select(map.getPanes().overlayPane).append("svg"),
+    csoSvg = d3.select(map.getPanes().overlayPane).append("svg"),
     g = svg.append("g").attr("class", "leaflet-zoom-hide"),
-    commG = commSvg.append("g").attr("class", "leaflet-zoom-hide");
+    commG = commSvg.append("g").attr("class", "leaflet-zoom-hide"),
+    csoG = csoSvg.append("g").attr("class", "leaflet-zoom-hide");
 var timeIdx = 0;
 var dataset = [];
 var timeRow = [];
 var dateNotice = document.getElementById("date");
-var unixDate = 1470286800;
+var unixDate = 1366174800;
 var transform = d3.geo.transform({point: projectPoint}),
     path = d3.geo.path().projection(transform);
 var pathBounds = {};
 var commAll;
 var intervalStep = 200;
+
+// Gradient pulled from http://www.visualcinnamon.com/2016/05/animate-gradient-imitate-flow-d3.html
+//Container for the gradient
+var defs = svg.append("defs");
+//Append a linear horizontal gradient
+var linearGradient = defs.append("linearGradient")
+	.attr("id","animate-gradient") //unique id to reference the gradient by
+	.attr("x1","200%")
+	.attr("y1","0%")
+	.attr("x2","100%")
+	.attr("y2","0")
+	//Make sure the areas before 0% and after 100% (along the x)
+	//are a mirror image of the gradient and not filled with the
+	//color at 0% and 100%
+	.attr("spreadMethod", "reflect");
+
+// Same color at beginning and end for smooth transition
+var colors = ["#f39c12", "#fcd9b0", "#f39c12"];
+
+var csoFeature;
+var csoData;
+
+linearGradient.selectAll(".stop")
+	.data(colors)
+	.enter().append("stop")
+	.attr("offset", function(d,i) { return i/(colors.length-1); })
+	.attr("stop-color", function(d) { return d; });
+
+linearGradient.append("animate")
+	.attr("attributeName","x1")
+	.attr("values","200%;100%")
+	.attr("dur","1s")
+	.attr("repeatCount","indefinite");
+
+linearGradient.append("animate")
+	.attr("attributeName","x2")
+	.attr("values","100%;0%")
+	.attr("dur","1s")
+	.attr("repeatCount","indefinite");
 
 d3.json("data/chicago_grid.topojson", function(error, grid) {
   var features = grid.objects.chicago_grid.geometries.map(function(d) {
@@ -54,7 +95,8 @@ d3.json("data/chicago_grid.topojson", function(error, grid) {
   var cells = g.selectAll("path")
       .data(features)
       .enter()
-      .append("path");
+      .append("path")
+      .attr("class", "rain-cell");
 
   map.on("viewreset", reset);
   reset();
@@ -125,7 +167,7 @@ d3.csv("data/april_2013_grid_15min.csv", function(data) {
 function updateTime() {
   if (timeIdx === dataset.length) {
     timeIdx = 0;
-    unixDate = 1470286800;
+    unixDate = 1366174800;
   }
   if (dataset.length > 0) {
     timeRow = dataset[timeIdx];
@@ -264,6 +306,8 @@ function makePoint(bounds) {
 }
 
 function addCallData() {
+  canvasEl = document.getElementById("legend-canvas");
+  rainLayer.makeRain(canvasEl, canvasEl, 1);
   // Based off of http://chriswhong.com/projects/phillybiketheft/
   d3.csv("data/april_2013_wib_calls.csv", function(collection) {
     /* Add a LatLng object to each item in the dataset */
@@ -299,6 +343,83 @@ function addCallData() {
         .style("opacity",0)
         .remove();
     }
+    update();
+    setInterval(update, intervalStep);
+  });
+}
+
+d3.json("data/mwrd_riverways.geojson", function(data) {
+  csoData = data;
+
+  map.on("viewreset", reset);
+  reset();
+
+  function reset() {
+    var bounds = path.bounds(data),
+    topLeft = bounds[0],
+    bottomRight = bounds[1];
+
+    csoSvg.attr("width", bottomRight[0] - topLeft[0])
+      .attr("height", bottomRight[1] - topLeft[1])
+      .style("left", topLeft[0] + "px")
+      .style("top", topLeft[1] + "px");
+
+    csoG.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+    if (csoFeature != undefined) {
+      csoFeature.attr("d", path);
+    }
+  }
+  addEventData();
+});
+
+
+function addEventData() {
+  d3.csv("data/april_2013_cso.csv", function(collection) {
+    var csoFeatures = collection.map(function(d) {
+      var feature = getSegment(parseInt(d.river_segment_id));
+      if (feature !== null) {
+        feature.properties.unixOpen = Math.floor(new Date(d.open_timestamp)/1000);
+        feature.properties.unixClose = Math.floor(new Date(d.close_timestamp)/1000);
+        return feature;
+      }
+      return null;
+    }).filter(function(d) { return d != null; });
+
+    function getSegment(segmentId) {
+      var feature = null;
+      csoData.features.forEach(function(d) {
+        if (d.properties.SEGMENT_ID === segmentId) {
+          feature = d;
+        }
+      });
+      return feature;
+    }
+
+    function update() {
+      grab = csoFeatures.filter(function(d){
+        return (d.properties.unixClose >= unixDate)&&(d.properties.unixOpen <= unixDate);
+      });
+      filtered = grab;
+
+      // Return ID as value, so that even if the timestamp exists already still adds
+      csoFeature = csoG.selectAll("path")
+        .data(filtered, function(d) { return d.properties.SEGMENT_ID});
+
+      csoFeature.enter()
+        .append("path")
+        .attr("d", path)
+        .style("fill-opacity", 0)
+        .attr("stroke-width", 3)
+        .attr("stroke", "url(#animate-gradient)");
+
+      csoFeature.exit()
+        .transition()
+        .duration(350)
+        .style("opacity",0)
+        .remove();
+    }
+
     update();
     setInterval(update, intervalStep);
   });
