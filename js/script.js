@@ -306,8 +306,6 @@ function makePoint(bounds) {
 }
 
 function addCallData() {
-  canvasEl = document.getElementById("legend-canvas");
-  rainLayer.makeRain(canvasEl, canvasEl, 1);
   // Based off of http://chriswhong.com/projects/phillybiketheft/
   d3.csv("data/april_2013_wib_calls.csv", function(collection) {
     /* Add a LatLng object to each item in the dataset */
