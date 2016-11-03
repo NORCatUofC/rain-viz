@@ -12,20 +12,6 @@ var map = L.map('map', {
 
 map.addLayer(baseLayer);
 
-var info = L.control({position: "bottomleft"});
-
-info.onAdd = function (map) {
-    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-    this._div.innerHTML = '<h4>Legend</h4>' +
-      '<p><canvas id="legend-canvas"></canvas> Rain by intensity</p>' +
-      '<p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style= "width:10px; height:10px">'  +
-      '<circle cx="5" cy="5" r="5" fill="#3366ff"/>' +
-  		'</svg><span>Basement Flooding</span></p>';
-    return this._div;
-};
-
-info.addTo(map);
-
 // Based off of http://bl.ocks.org/pbogden/16417ea36900f44710b2
 // Declare global variables for going through timestamps
 // Need to refine this, make into actual time scale potentially, but
@@ -46,6 +32,7 @@ var transform = d3.geo.transform({point: projectPoint}),
 var pathBounds = {};
 var commAll;
 var intervalStep = 200;
+var intervalArr = [];
 
 // Gradient pulled from http://www.visualcinnamon.com/2016/05/animate-gradient-imitate-flow-d3.html
 //Container for the gradient
@@ -165,18 +152,18 @@ d3.csv("data/april_2013_grid_15min.csv", function(data) {
 // Iterates through rows of CSV with timestamps, resets on end
 // Now CSV is every 15 minutes
 function updateTime() {
-  if (timeIdx === dataset.length) {
-    timeIdx = 0;
-    unixDate = 1366174800;
-  }
   if (dataset.length > 0) {
+    if (timeIdx === dataset.length) {
+      intervalArr.forEach(function(d) { clearInterval(d); });
+      return;
+    }
     timeRow = dataset[timeIdx];
     unixDate = Math.floor(new Date(dataset[timeIdx][0])/1000);
     dateNotice.innerText = timeRow[0];
     timeIdx += 1;
   }
 }
-setInterval(updateTime, intervalStep);
+intervalArr.push(setInterval(updateTime, intervalStep));
 
 
 var RainLayer = L.CanvasLayer.extend({
@@ -342,7 +329,7 @@ function addCallData() {
         .remove();
     }
     update();
-    setInterval(update, intervalStep);
+    intervalArr.push(setInterval(update, intervalStep));
   });
 }
 
@@ -419,6 +406,67 @@ function addEventData() {
     }
 
     update();
-    setInterval(update, intervalStep);
+    intervalArr.push(setInterval(update, intervalStep));
   });
 }
+
+// Rain animation in legend
+var legendCanvas = document.getElementById("legend-canvas");
+
+function makeLegendRain() {
+  var lCtx = legendCanvas.getContext('2d');
+  var w = legendCanvas.width;
+  var h = legendCanvas.height;
+  lCtx.strokeStyle = 'rgba(174,194,224,0.75)';
+  lCtx.lineWidth = 1;
+  lCtx.lineCap = 'round';
+  lCtx.fillRect(0,0,w,h);
+
+  var init = [];
+  var maxDrops = 25;
+  for (var c = 0; c < maxDrops; c++) {
+    // Create random locations based off of bounding box off of d3 path location
+    // Need to subtract difference between overall canvas offset and the D3 path
+    init.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      l: Math.random() * 1,
+      xs: -4 + Math.random() * 4 + 2,
+      ys: Math.random() * 10 + 10
+    });
+  }
+
+  var particles = [];
+  for(var b = 0; b < maxDrops; b++) {
+    particles[b] = init[b];
+  }
+
+  function draw() {
+    lCtx.clearRect(0, 0, w, h);
+    lCtx.fillRect(0,0,w,h);
+    for(var c = 0; c < particles.length; c++) {
+      var p = particles[c];
+      lCtx.beginPath();
+      lCtx.moveTo(p.x, p.y);
+      lCtx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);
+      lCtx.stroke();
+    }
+    move();
+  }
+
+  function move() {
+    for(var b = 0; b < particles.length; b++) {
+      var p = particles[b];
+      p.x += p.xs;
+      p.y += p.ys;
+      if(p.x > w || p.y > h) {
+        p.x = Math.random() * w;
+        p.y = -20;
+      }
+    }
+  }
+
+  setInterval(draw, 100);
+}
+
+makeLegendRain();

@@ -11,6 +11,10 @@ body, .leaflet-container {
   z-index: 1;
 }
 
+.top-legend {
+  top: 50px;
+}
+
 .navbar-default, div.navbar-header, div.navbar-collapse, div.container-fluid {
   background-color: #565555;
   border: none;
@@ -45,6 +49,10 @@ label {
   font-weight: 600;
 }
 
+#info {
+  z-index: 10;
+}
+
 #info path {
   fill: #F4F4F4;
 }
@@ -67,7 +75,6 @@ label {
   right: 35%;
   left: 35%;
   padding: 10px;
-  border-radius: 5px;
   background: rgba(255,255,255,0.7);
   text-align: center;
 }
@@ -109,11 +116,6 @@ label {
 }
 .info p svg {
   margin-right: 8px;
-}
-
-#legend-canvas {
-  width: 15px;
-  height: 15px;
 }
 
 footer {
