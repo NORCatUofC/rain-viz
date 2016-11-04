@@ -5,7 +5,6 @@ title: Rain Viz
 permalink: /
 ---
 <div id="map" class="d3-map"></div>
-<h3 id="date" class="time-header">YYYY-MM-DD HH:MM:SS</h3>
 <a role="button" data-toggle="collapse" href="#collapse-legend" aria-expanded="false" aria-controls="collapse-legend">
   <svg width="32" height="32" id="info">
     <circle cx="16" cy="16" r="15" fill="#000" />
@@ -14,18 +13,41 @@ permalink: /
     <path class="path3" d="M16 0c-8.837 0-16 7.163-16 16s7.163 16 16 16 16-7.163 16-16-7.163-16-16-16zM16 29c-7.18 0-13-5.82-13-13s5.82-13 13-13 13 5.82 13 13-5.82 13-13 13z"></path>
   </svg>
 </a>
-<div class="collapse leaflet-top leaflet-right top-legend" id="collapse-legend">
+<div class="collapse in leaflet-top leaflet-right top-legend" id="collapse-legend">
   <div class="info leaflet-control">
-    <h4>Legend</h4>
-    <br>
-    <p><canvas id="legend-canvas" width="16" height="16" fill="#000"></canvas> Rain by intensity</p>
-    <p><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="width:16px; height:16px">
-      <circle cx="8" cy="8" r="8" fill="#3366ff" opacity="0.75"></circle>
-    </svg><span>Basement Flooding</span></p>
-    <p>
-      <svg id="cso-svg-legend" viewBox="0 0 16 16" width="16" height="16">
-        <path id="cso-legend" d='M00 8 L16 8 Z' stroke-width="3" stroke="#f39c12"></path>
-      </svg><span>CSO-Affected Waterway</span>
-    </p>
+    <h4 id="date"><p>M/DD/YYYY</p><p>HH:MM AM</p></h4>
+    <table class="table">
+      <colgroup>
+        <col style='width:20%;'>
+        <col style='width:65%'>
+        <col style='width:15%;'>
+      </colgroup>
+      <tbody>
+        <tr>
+          <td><span id="rain-counter">0.0</span></td>
+          <td>in. Rain</td>
+          <td><canvas id="legend-canvas" width="16" height="16" fill="#000"></canvas></td>
+        </tr>
+        <tr>
+          <td><span id="flood-counter">0</span></td>
+          <td>311 Basement Flooding Calls</td>
+          <td><svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="width:16px; height:16px">
+            <circle cx="8" cy="8" r="8" fill="#3366ff" opacity="0.75"></circle>
+          </svg></td>
+        </tr>
+        <tr>
+          <td><span id="cso-counter">0</span></td>
+          <td>Combined Sewer Overflows</td>
+          <td><svg id="cso-svg-legend" viewBox="0 0 16 16" width="16" height="16">
+              <path id="cso-legend" d='M00 8 L16 8 Z' stroke-width="3" stroke="#f39c12"></path>
+            </svg></td>
+        </tr>
+        <tr>
+          <td><span id="cso-time">0:00</span></td>
+          <td>Total Sewer Overflow Time</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

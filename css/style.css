@@ -53,6 +53,10 @@ label {
   z-index: 10;
 }
 
+#info p {
+  font-size: 12px;
+}
+
 #info path {
   fill: #F4F4F4;
 }
@@ -69,20 +73,20 @@ label {
   bottom: 0;
 }
 
-#date {
-  position: absolute;
-  top: 50px;
-  right: 35%;
-  left: 35%;
-  padding: 10px;
-  background: rgba(255,255,255,0.7);
-  text-align: center;
-}
-
 #info {
   position: absolute;
   top: 65px;
   right: 15px;
+}
+
+.table {
+  margin-bottom: 0;
+  margin-top: 15px;
+}
+
+.table>tbody>tr>td {
+  border-top: none;
+  padding: 5px;
 }
 
 .time-header {
@@ -96,11 +100,16 @@ label {
   stroke-width: 0;
 }
 
+#date {
+  font-size: 18px;
+  font-weight: 500;
+}
+
 .info {
   padding: 6px 8px;
   background: rgba(255,255,255,0.7);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  max-width: 250px;
+  max-width: 450px;
 }
 .info h4 {
   margin: 0 0 5px;
@@ -115,16 +124,9 @@ label {
   opacity: 0.8;
 }
 .info p svg {
-  margin-right: 8px;
+  margin-left: 10px;
 }
 
 footer {
   height: 25px;
-}
-
-@media (max-width: 500px) {
-  #date {
-    right: 10%;
-    left: 10%;
-  }
 }

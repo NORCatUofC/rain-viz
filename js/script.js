@@ -4,10 +4,10 @@ var baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/
 
 var map = L.map('map', {
   center: [41.88, -87.63],
-  zoom: 10,
-  minZoom: 10,
+  zoom: 9,
+  minZoom: 9,
   maxZoom: 16,
-  maxBounds: [[41.644335, -87.940267], [42.0231311, -87.524044]]
+  maxBounds: [[41.0, -88.5], [43.5, -87.0]]
 });
 
 map.addLayer(baseLayer);
@@ -158,8 +158,9 @@ function updateTime() {
       return;
     }
     timeRow = dataset[timeIdx];
-    unixDate = Math.floor(new Date(dataset[timeIdx][0])/1000);
-    dateNotice.innerText = timeRow[0];
+    var date = new Date(dataset[timeIdx][0]);
+    unixDate = Math.floor(date/1000);
+    dateNotice.innerHTML = "<p>" + date.toLocaleDateString() + "</p><p>" + date.toLocaleTimeString() + "</p>";
     timeIdx += 1;
   }
 }
