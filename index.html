@@ -5,15 +5,16 @@ title: Rain Viz
 permalink: /
 ---
 <div id="map" class="d3-map"></div>
-<a role="button" data-toggle="collapse" href="#collapse-legend" aria-expanded="false" aria-controls="collapse-legend">
+<a role="button" data-toggle="collapse" href=".collapse-legend" aria-expanded="false" aria-controls="collapse-legend">
   <svg width="32" height="32" id="info">
     <circle cx="16" cy="16" r="15" fill="#000" />
-    <path class="path1" d="M14 9.5c0-0.825 0.675-1.5 1.5-1.5h1c0.825 0 1.5 0.675 1.5 1.5v1c0 0.825-0.675 1.5-1.5 1.5h-1c-0.825 0-1.5-0.675-1.5-1.5v-1z"></path>
-    <path class="path2" d="M20 24h-8v-2h2v-6h-2v-2h6v8h2z"></path>
+    <path class="path1 collapse collapse-legend" d="M14 9.5c0-0.825 0.675-1.5 1.5-1.5h1c0.825 0 1.5 0.675 1.5 1.5v1c0 0.825-0.675 1.5-1.5 1.5h-1c-0.825 0-1.5-0.675-1.5-1.5v-1z"></path>
+    <path class="path2 collapse collapse-legend" d="M20 24h-8v-2h2v-6h-2v-2h6v8h2z"></path>
+    <path class="path4 collapse collapse-legend in" d="M22.911 20.271c-0-0-0-0-0-0l-4.271-4.271 4.271-4.271c0-0 0-0 0-0 0.046-0.046 0.079-0.1 0.101-0.157 0.058-0.156 0.025-0.339-0.101-0.465l-2.017-2.017c-0.126-0.126-0.309-0.159-0.465-0.101-0.057 0.021-0.111 0.055-0.157 0.1 0 0-0 0-0 0l-4.271 4.271-4.271-4.271c-0-0-0-0-0-0-0.046-0.046-0.1-0.079-0.157-0.1-0.156-0.058-0.339-0.025-0.465 0.101l-2.018 2.018c-0.126 0.126-0.159 0.309-0.101 0.465 0.021 0.057 0.055 0.111 0.101 0.157 0 0 0 0 0 0l4.271 4.271-4.271 4.271c-0 0-0 0-0 0-0.046 0.046-0.079 0.1-0.101 0.157-0.058 0.156-0.025 0.339 0.101 0.465l2.018 2.017c0.126 0.126 0.309 0.159 0.465 0.101 0.057-0.021 0.111-0.055 0.157-0.101 0-0 0-0 0-0l4.271-4.271 4.271 4.271c0 0 0 0 0 0 0.046 0.046 0.1 0.079 0.157 0.101 0.156 0.058 0.339 0.025 0.465-0.101l2.017-2.017c0.126-0.126 0.159-0.309 0.101-0.465-0.021-0.057-0.055-0.111-0.101-0.157z"></path>
     <path class="path3" d="M16 0c-8.837 0-16 7.163-16 16s7.163 16 16 16 16-7.163 16-16-7.163-16-16-16zM16 29c-7.18 0-13-5.82-13-13s5.82-13 13-13 13 5.82 13 13-5.82 13-13 13z"></path>
   </svg>
 </a>
-<div class="collapse in leaflet-top leaflet-right top-legend" id="collapse-legend">
+<div class="collapse in leaflet-top leaflet-right top-legend collapse-legend">
   <div class="info leaflet-control">
     <h4 id="date"><p>M/DD/YYYY</p><p>HH:MM AM</p></h4>
     <table class="table">

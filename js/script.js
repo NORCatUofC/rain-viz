@@ -158,6 +158,8 @@ function updateTime() {
   if (dataset.length > 0) {
     if (timeIdx === dataset.length) {
       intervalArr.forEach(function(d) { clearInterval(d); });
+      csoG.selectAll("path").remove();
+      g.selectAll("canvas").remove();
       return;
     }
     timeRow = dataset[timeIdx];
