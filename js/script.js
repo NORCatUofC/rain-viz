@@ -179,7 +179,7 @@ var RainLayer = L.CanvasLayer.extend({
     // Need cutoff because extremely low values skew things
     // Increasing from 100 to 200 because doing 15 minutes instead of an hour
     if (timeRow[speed+1] > 0.1) {
-      speed = Math.floor(timeRow[speed + 1] * 200);
+      speed = Math.floor(timeRow[speed + 1] * 100);
     }
     else {
       speed = 0;
@@ -199,7 +199,7 @@ var RainLayer = L.CanvasLayer.extend({
       ctx.moveTo(r.x, r.y);
 
       // Scale length based on zoom value
-      var yEnd = r.y + (((_zoom-10)+1)* 3);
+      var yEnd = r.y + (((_zoom-9)+1)* 3);
 
       ctx.lineTo(r.x, yEnd);
       ctx.stroke();
@@ -293,6 +293,9 @@ function makePoint(bounds) {
   };
 }
 
+var callCount = 0;
+var callCountSpan = document.getElementById('flood-counter');
+
 function addCallData() {
   // Based off of http://chriswhong.com/projects/phillybiketheft/
   d3.csv("data/april_2013_wib_calls.csv", function(collection) {
@@ -309,6 +312,8 @@ function addCallData() {
         return (d.UnixDate <= unixDate)&&(d.UnixDate > (unixDate - 900));
       });
       filtered = grab;
+      callCount += filtered.length;
+      callCountSpan.innerText = callCount.toString();
 
       // Return ID as value, so that even if the timestamp exists already still adds
       var feature = commG.selectAll("circle").data(filtered, function(d) {return d.id;});
@@ -359,6 +364,8 @@ d3.json("data/mwrd_riverways.geojson", function(data) {
   addEventData();
 });
 
+var csoCount = 0;
+var csoCountSpan = document.getElementById('cso-counter');
 
 function addEventData() {
   d3.csv("data/april_2013_cso.csv", function(collection) {
@@ -398,6 +405,12 @@ function addEventData() {
         .style("fill-opacity", 0)
         .attr("stroke-width", 3)
         .attr("stroke", "url(#animate-gradient)");
+
+      countFilter = csoFeatures.filter(function(d) {
+        return (d.properties.unixOpen <= unixDate)&&(d.properties.unixOpen > (unixDate - 900));
+      });
+      csoCount += countFilter.length;
+      csoCountSpan.innerText = csoCount.toString();
 
       csoFeature.exit()
         .transition()
