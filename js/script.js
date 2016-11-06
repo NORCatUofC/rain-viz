@@ -141,13 +141,16 @@ function projectPoint(x, y) {
   this.stream.point(point.x, point.y);
 }
 
-d3.csv("data/april_2013_grid_15min.csv", function(data) {
+d3.csv("data/april_2013_grid_15min_mdw.csv", function(data) {
    dataset = data.map(function(d) {
      // Overly complicated one-liner to get the timestamp as first item, then get
      // array of all values in order without keys
-     return [d["timestamp"]].concat(Object.keys(d).slice(0,-1).map(function(k){return parseFloat(d[k]);}));
+     return [d["timestamp"], d["midway_precip"]].concat(Object.keys(d).slice(0,-2).map(function(k){return parseFloat(d[k]);}));
    });
 });
+
+var rainCount = 0.0;
+var rainCountSpan = document.getElementById("rain-counter");
 
 // Iterates through rows of CSV with timestamps, resets on end
 // Now CSV is every 15 minutes
@@ -161,6 +164,8 @@ function updateTime() {
     var date = new Date(dataset[timeIdx][0]);
     unixDate = Math.floor(date/1000);
     dateNotice.innerHTML = "<p>" + date.toLocaleDateString() + "</p><p>" + date.toLocaleTimeString() + "</p>";
+    rainCount += parseFloat(dataset[timeIdx][1]);
+    rainCountSpan.innerText = rainCount.toFixed(2);
     timeIdx += 1;
   }
 }
@@ -178,8 +183,8 @@ var RainLayer = L.CanvasLayer.extend({
 
     // Need cutoff because extremely low values skew things
     // Increasing from 100 to 200 because doing 15 minutes instead of an hour
-    if (timeRow[speed+1] > 0.1) {
-      speed = Math.floor(timeRow[speed + 1] * 100);
+    if (timeRow[speed+2] > 0.1) {
+      speed = Math.floor(timeRow[speed+2] * 100);
     }
     else {
       speed = 0;
