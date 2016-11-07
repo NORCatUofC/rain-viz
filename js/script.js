@@ -73,6 +73,12 @@ linearGradient.append("animate")
 	.attr("dur","1s")
 	.attr("repeatCount","indefinite");
 
+function makeDate(dateString) {
+  var d = dateString.split(/[^0-9]/);
+  var newDate = new Date(d[0], d[1]-1, d[2], d[3], d[4], d[5]);
+  return newDate;
+}
+
 d3.json("data/chicago_grid.topojson", function(error, grid) {
   var features = grid.objects.chicago_grid.geometries.map(function(d) {
     return topojson.feature(grid, d);
@@ -163,11 +169,11 @@ function updateTime() {
       return;
     }
     timeRow = dataset[timeIdx];
-    var date = new Date(dataset[timeIdx][0]);
+    var date = makeDate(dataset[timeIdx][0]);
     unixDate = Math.floor(date/1000);
     dateNotice.innerHTML = "<p>" + date.toLocaleDateString() + "</p><p>" + date.toLocaleTimeString() + "</p>";
     rainCount += parseFloat(dataset[timeIdx][1]);
-    rainCountSpan.innerText = rainCount.toFixed(2);
+    rainCountSpan.textContent = rainCount.toFixed(2);
     timeIdx += 1;
   }
 }
@@ -309,7 +315,7 @@ function addCallData() {
     /* Add a LatLng object to each item in the dataset */
     collection.forEach(function(d) {
       var loc = makePoint(pathBounds[d.comm_area]);
-      d.UnixDate = Math.floor(new Date(d.timestamp)/1000);
+      d.UnixDate = Math.floor(makeDate(d.timestamp)/1000);
       d.LatLng = new L.LatLng(loc.y,loc.x);
     });
 
@@ -320,7 +326,7 @@ function addCallData() {
       });
       filtered = grab;
       callCount += filtered.length;
-      callCountSpan.innerText = callCount.toString();
+      callCountSpan.textContent = callCount.toString();
 
       // Return ID as value, so that even if the timestamp exists already still adds
       var feature = commG.selectAll("circle").data(filtered, function(d) {return d.id;});
@@ -379,8 +385,8 @@ function addEventData() {
     var csoFeatures = collection.map(function(d) {
       var feature = getSegment(parseInt(d.river_segment_id));
       if (feature !== null) {
-        feature.properties.unixOpen = Math.floor(new Date(d.open_timestamp)/1000);
-        feature.properties.unixClose = Math.floor(new Date(d.close_timestamp)/1000);
+        feature.properties.unixOpen = Math.floor(makeDate(d.open_timestamp)/1000);
+        feature.properties.unixClose = Math.floor(makeDate(d.close_timestamp)/1000);
         return feature;
       }
       return null;
@@ -417,7 +423,7 @@ function addEventData() {
         return (d.properties.unixOpen <= unixDate)&&(d.properties.unixOpen > (unixDate - 900));
       });
       csoCount += countFilter.length;
-      csoCountSpan.innerText = csoCount.toString();
+      csoCountSpan.textContent = csoCount.toString();
 
       csoFeature.exit()
         .transition()
