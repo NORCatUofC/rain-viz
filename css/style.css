@@ -16,17 +16,16 @@ body, .leaflet-container {
 }
 
 .navbar-default, div.navbar-header, div.navbar-collapse, div.container-fluid {
-  background-color: #565555;
+  background-color: #c6c6c6;
   border: none;
 }
 
 .navbar-default .navbar-nav>li>a {
-  color: #F4F4F4;
-  font-weight: bold;
+  color: #000;
 }
 
 .navbar-default .navbar-nav>li>a:hover {
-  color: #D1D1D1;
+  color: #565555;
 }
 
 .navbar-default .navbar-toggle .icon-bar {

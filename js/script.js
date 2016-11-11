@@ -1,10 +1,10 @@
-var baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+var baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
 });
 
 var map = L.map('map', {
-  center: [41.88, -87.63],
-  zoom: 9,
+  center: [41.88, -87.93],
+  zoom: 10,
   minZoom: 9,
   maxZoom: 16,
   maxBounds: [[41.0, -88.5], [43.5, -87.0]]
@@ -242,7 +242,7 @@ var RainLayer = L.CanvasLayer.extend({
     // Can clear out whole rect because doing full animationFrames
     ctx.clearRect(0, 0, w, h);
     // Could scale this color based on intensity as well
-    ctx.strokeStyle = 'rgba(174,194,224,0.5)';
+    ctx.strokeStyle = 'rgba(51,64,116,0.5)';
     this.zoomLevel = map.getZoom();
     ctx.lineWidth = 1;
     // Scale lineWidth based on zoom
@@ -330,7 +330,7 @@ function addCallData() {
 
       // Return ID as value, so that even if the timestamp exists already still adds
       var feature = commG.selectAll("circle").data(filtered, function(d) {return d.id;});
-      feature.enter().append("circle").attr("fill","#3366ff").attr("r",5).style("opacity",0.75);
+      feature.enter().append("circle").attr("fill","#c91a1a").attr("r",5).style("opacity",0.75);
 
       map.on("viewreset",updatePoint);
       updatePoint();
@@ -444,7 +444,7 @@ function makeLegendRain() {
   var lCtx = legendCanvas.getContext('2d');
   var w = legendCanvas.width;
   var h = legendCanvas.height;
-  lCtx.strokeStyle = 'rgba(174,194,224,0.75)';
+  lCtx.strokeStyle = 'rgba(51,64,116,0.5)';
   lCtx.lineWidth = 1;
   lCtx.lineCap = 'round';
   lCtx.fillRect(0,0,w,h);
@@ -470,7 +470,7 @@ function makeLegendRain() {
 
   function draw() {
     lCtx.clearRect(0, 0, w, h);
-    lCtx.fillRect(0,0,w,h);
+    // lCtx.fillRect(0,0,w,h);
     for(var c = 0; c < particles.length; c++) {
       var p = particles[c];
       lCtx.beginPath();
