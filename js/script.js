@@ -17,10 +17,8 @@ map.addLayer(baseLayer);
 // Need to refine this, make into actual time scale potentially, but
 // currently the timestamps are regular by hour
 var svg = d3.select(map.getPanes().overlayPane).append("svg"),
-    commSvg = d3.select(map.getPanes().overlayPane).append("svg"),
     csoSvg = d3.select(map.getPanes().overlayPane).append("svg"),
     g = svg.append("g").attr("class", "leaflet-zoom-hide"),
-    commG = commSvg.append("g").attr("class", "leaflet-zoom-hide"),
     csoG = csoSvg.append("g").attr("class", "leaflet-zoom-hide");
 var timeIdx = 0;
 var dataset = [];
@@ -120,23 +118,6 @@ d3.json("data/comm_bboxes.topojson", function(error, bboxes) {
   features.forEach(function(d) {
     pathBounds[d.properties.comm_area] = d3.geo.bounds(d);
   });
-
-  map.on("viewreset", reset);
-  reset();
-
-  // Reposition the SVG to cover the features.
-  function reset() {
-    var bounds = path.bounds(commAll),
-        topLeft = bounds[0],
-        bottomRight = bounds[1];
-
-    commSvg.attr("width", bottomRight[0] - topLeft[0])
-       .attr("height", bottomRight[1] - topLeft[1])
-       .style("left", topLeft[0] + "px")
-       .style("top", topLeft[1] + "px");
-
-    commG.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-  }
   addCallData();
 });
 
@@ -329,14 +310,19 @@ function addCallData() {
       callCountSpan.textContent = callCount.toString();
 
       // Return ID as value, so that even if the timestamp exists already still adds
-      var feature = commG.selectAll("circle").data(filtered, function(d) {return d.id;});
-      feature.enter().append("circle").attr("fill","#c91a1a").attr("r",5).style("opacity",0.75);
+      var feature = g.selectAll("circle.call-data").data(filtered, function(d) {return d.id;});
+      feature.enter()
+        .append("circle")
+        .attr("class", "call-data")
+        .attr("fill","#c91a1a")
+        .attr("r",5)
+        .style("opacity",0.75);
 
       map.on("viewreset",updatePoint);
       updatePoint();
 
       function updatePoint() {
-        commG.selectAll("circle").attr("transform", function(d) {
+        g.selectAll("circle.call-data").attr("transform", function(d) {
           return "translate(" + map.latLngToLayerPoint(d.LatLng).x + "," +
           map.latLngToLayerPoint(d.LatLng).y + ")";
         });
@@ -355,10 +341,10 @@ function addCallData() {
 d3.json("data/mwrd_riverways.geojson", function(data) {
   csoData = data;
 
-  map.on("viewreset", reset);
-  reset();
+  map.on("viewreset", resetCso);
+  resetCso();
 
-  function reset() {
+  function resetCso() {
     var bounds = path.bounds(data),
     topLeft = bounds[0],
     bottomRight = bounds[1];
@@ -409,12 +395,13 @@ function addEventData() {
       filtered = grab;
 
       // Return ID as value, so that even if the timestamp exists already still adds
-      csoFeature = csoG.selectAll("path")
+      csoFeature = csoG.selectAll("path.cso-data")
         .data(filtered, function(d) { return d.properties.SEGMENT_ID});
 
       csoFeature.enter()
         .append("path")
         .attr("d", path)
+        .attr("class", "cso-data")
         .style("fill-opacity", 0)
         .attr("stroke-width", 3)
         .attr("stroke", "url(#animate-gradient)");
