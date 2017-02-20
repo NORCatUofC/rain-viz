@@ -1,9 +1,18 @@
-html, body {
+html, body, .main-container {
   width: 100%;
 }
 
-body, .leaflet-container {
-  font: 14px/1.5 "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+.main-container {
+  height: 100%;
+}
+
+body {
+  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+.navbar {
+  border-radius: 0;
 }
 
 /* Reducing Leaflet control z-index so that it's covered by nav */
@@ -11,21 +20,17 @@ body, .leaflet-container {
   z-index: 1;
 }
 
-.top-legend {
-  top: 50px;
-}
-
-.navbar-default, div.navbar-header, div.navbar-collapse, div.container-fluid {
-  background-color: #c6c6c6;
+.navbar-default, div.navbar-header, div.navbar-collapse {
+  background-color: #6095c8;
   border: none;
 }
 
-.navbar-default .navbar-nav>li>a {
-  color: #000;
+.navbar-default .navbar-nav>li>a, .navbar-default a.navbar-brand {
+  color: #F4F4F4;
 }
 
-.navbar-default .navbar-nav>li>a:hover {
-  color: #565555;
+.navbar-default .navbar-nav>li>a:hover, .navbar-default a.navbar-brand:hover {
+  color: #dbdbdb;
 }
 
 .navbar-default .navbar-toggle .icon-bar {
@@ -42,6 +47,29 @@ body, .leaflet-container {
 
 .navbar-collapse>ul>li {
   text-align: right;
+}
+
+/* Reducing Leaflet control z-index so that it's covered by nav */
+.leaflet-top.leaflet-left, .leaflet-top.leaflet-right {
+  z-index: 1;
+}
+
+.top-legend {
+  top: 50px;
+}
+
+.top-legend.viz-splash {
+  right: 50%;
+}
+
+#info {
+  position: absolute;
+  top: 65px;
+  right: 15px;
+}
+
+#info.viz-splash {
+  right: 52%;
 }
 
 label {
@@ -72,10 +100,21 @@ label {
   bottom: 0;
 }
 
-#info {
+#map.viz-splash {
+  right: 50%;
+}
+
+#splash-button {
+  display: none;
+}
+
+.viz-right {
   position: absolute;
-  top: 65px;
-  right: 15px;
+  left: 50%;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
 }
 
 .table {
@@ -130,8 +169,79 @@ footer {
   height: 25px;
 }
 
+div.time-chart {
+  position: absolute;
+  bottom: 25px;
+  right: 15px;
+  left: 15px;
+  height: 100px;
+  background: rgba(255,255,255,0.4);
+}
+
+div.time-chart.viz-splash {
+  right: 52%;
+  left: 2%;
+}
+
+.axis.time-chart {
+  shape-rendering: crispEdges;
+}
+
+.x.axis.time-chart line {
+  stroke: lightgrey;
+}
+
+.x.axis.time-chart .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis.time-chart path {
+  display: none;
+}
+
+.y.axis.time-chart line, .y.axis path {
+  fill: steelblue;
+  stroke: #000;
+}
+
+path.time-chart {
+  stroke-width: 2;
+  fill-opacity: 0;
+}
+
+path.precip-data {
+	stroke: steelblue;
+}
+path.call-data {
+  stroke: #c91a1a;
+}
+.time-chart g path.cso-data {
+  stroke: #f39c12;
+}
+
 @media (max-width: 400px) {
   .info {
     max-width: 250px;
+  }
+}
+
+@media (max-width: 775px) {
+  #map.viz-splash,
+  #info.viz-splash,
+  .top-legend.viz-splash,
+  .time-chart.viz-splash {
+    display: none;
+  }
+  .viz-right {
+    left: 0;
+    top: 0;
+    position: relative;
+    width: 100%;
+    overflow-y: none;
+  }
+  #splash-button {
+    display: inherit;
+    text-align: center;
+    font-weight: bold;
   }
 }

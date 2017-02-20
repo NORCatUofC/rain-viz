@@ -86,10 +86,6 @@ L.control.layers(heatmapLayers, boundaryLayers).addTo(map);
 var zipScaleLevels = [0, 1000, 2000, 3000, 4000, 5000, 5412];
 var commScaleLevels = [40, 1000, 2000, 3000, 4000, 5000, 5803];
 
-// var callLegend = "<h4>311 Flooding Call Heatmap</h4>" +
-//                  "<p>Heatmap distribution of 311 calls for water in street flooding " +
-//                  "and water in basement flooding from January 2009 to September 2016</p>";
-
 var basementLegend = "<h4>311 Basement Flooding Calls</h4>" +
                      "<p>Heatmap distribution of 311 calls for basement flooding " +
                      "from January 2009 to September 2016</p>";
@@ -142,7 +138,7 @@ map.on("baselayerchange", function(eventLayer){
 });
 
 var zipReq = new XMLHttpRequest();
-zipReq.open("GET", "data/chi_zip_web.geojson", true);
+zipReq.open("GET", baseUrl + "/data/chi_zip_web.geojson", true);
 zipReq.onload = function() {
     if (zipReq.status === 200) {
         var jsonResponse = JSON.parse(zipReq.responseText);
@@ -161,7 +157,7 @@ zipReq.onerror = function() {
 zipReq.send();
 
 var commReq = new XMLHttpRequest();
-commReq.open("GET", "data/chi_comm_web.geojson", true);
+commReq.open("GET", baseUrl + "/data/chi_comm_web.geojson", true);
 commReq.onload = function() {
     if (commReq.status === 200) {
         var jsonResponse = JSON.parse(commReq.responseText);

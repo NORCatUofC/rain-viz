@@ -3,8 +3,8 @@ var baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/
 });
 
 var map = L.map('map', {
-  center: [41.88, -87.93],
-  zoom: 10,
+  center: [41.88, -87.73],
+  zoom: initialZoom,
   minZoom: 9,
   maxZoom: 16,
   maxBounds: [[41.0, -88.5], [43.5, -87.0]]
@@ -20,17 +20,123 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg"),
     csoSvg = d3.select(map.getPanes().overlayPane).append("svg"),
     g = svg.append("g").attr("class", "leaflet-zoom-hide"),
     csoG = csoSvg.append("g").attr("class", "leaflet-zoom-hide");
+
+// Geographic path transformation variables
+var transform = d3.geo.transform({point: projectPoint}),
+    path = d3.geo.path().projection(transform);
+var pathBounds = {};
+var commAll;
+
+// Time incrementing variables
 var timeIdx = 0;
 var dataset = [];
 var timeRow = [];
 var dateNotice = document.getElementById("date");
 var unixDate = 1366174800;
-var transform = d3.geo.transform({point: projectPoint}),
-    path = d3.geo.path().projection(transform);
-var pathBounds = {};
-var commAll;
 var intervalStep = 200;
 var intervalArr = [];
+
+// Time chart variables
+var timeChart = document.querySelector(".time-chart");
+var timeChartWidth = timeChart.offsetWidth;
+var timeChartHeight = timeChart.offsetHeight;
+var precipChartData, callChartData, csoChartData;
+var precipChartPath, callChartPath, csoChartPath;
+
+var x = d3.time.scale()
+  .range([0, timeChartWidth]);
+var y = d3.scale.linear()
+  .range([timeChartHeight, 0]);
+// Epoch timestamps for 4/17/2013 and 4/21/2013
+x.domain([new Date(1366200000000), new Date(1366545600000)]);
+
+var xAxis = d3.svg.axis()
+  .scale(x)
+  .orient("bottom");
+var yAxis = d3.svg.axis()
+  .scale(y)
+  .orient("left")
+  .ticks(4);
+
+var timeChartSvg = d3.select(".time-chart").append("svg")
+  .attr("width", timeChartWidth)
+  .attr("height", timeChartHeight)
+  .attr("class","time-chart")
+  .append("g");
+
+// define the clipPath
+timeChartSvg.append("clipPath")
+    .attr("id", "line-clip")
+  .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 0)
+    .attr("height", timeChartHeight);
+
+// Line chart addition
+function makeTimeChart(timeChartData) {
+  var area = d3.svg.area()
+    .interpolate("basis")
+    .x(function(d) { return x(d.time); })
+    .y0(timeChartHeight)
+    .y1(function(d) { return y(d.precip); });
+
+  y.domain([0, d3.max(timeChartData, function (d) { return d.precip; })]);
+
+  precipChartPath = timeChartSvg.append("path").attr("class", "time-chart precip-data")
+    .attr("d", area(timeChartData))
+    .attr("clip-path", "url(#line-clip)");
+
+  timeChartSvg.append("g")
+    .attr("class", "x axis time-chart")
+    .attr("transform", "translate(0," + timeChartHeight + ")")
+    .call(xAxis)
+    .append("text")
+    .attr("y", 9)
+    .attr("x", 39)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Time");
+
+  timeChartSvg.append("g")
+    .attr("class", "y axis time-chart")
+    .call(yAxis)
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .attr("font-size", "11px")
+    .style("text-anchor", "end")
+    .text("Rain, Calls, CSOs");
+}
+
+function makeCallTimeChart(callData) {
+  var area = d3.svg.area()
+    .interpolate("basis")
+    .x(function(d) { return x(d.time); })
+    .y0(timeChartHeight)
+    .y1(function(d) { return y(d.calls); });
+
+  y.domain([0, d3.max(callData, function (d) { return d.calls; })]);
+
+  callChartPath = timeChartSvg.append("path").attr("class", "time-chart call-data")
+    .attr("d", area(callData))
+    .attr("clip-path", "url(#line-clip)");
+}
+
+function makeCsoTimeChart(eventData) {
+  var area = d3.svg.area()
+    .interpolate("basis")
+    .x(function(d) { return x(d.time); })
+    .y0(timeChartHeight)
+    .y1(function(d) { return y(d.events); });
+
+  y.domain([0, d3.max(eventData, function (d) { return d.events; })]);
+
+  csoChartPath = timeChartSvg.append("path").attr("class", "time-chart cso-data")
+    .attr("d", area(eventData))
+    .attr("clip-path", "url(#line-clip)");
+}
 
 // Gradient pulled from http://www.visualcinnamon.com/2016/05/animate-gradient-imitate-flow-d3.html
 //Container for the gradient
@@ -77,7 +183,13 @@ function makeDate(dateString) {
   return newDate;
 }
 
-d3.json("data/chicago_grid.topojson", function(error, grid) {
+function roundMinutes(date) {
+    date.setHours(date.getHours() + Math.round(date.getMinutes()/60));
+    date.setMinutes(0);
+    return date;
+}
+
+d3.json(baseUrl + "/data/chicago_grid.topojson", function(error, grid) {
   var features = grid.objects.chicago_grid.geometries.map(function(d) {
     return topojson.feature(grid, d);
   });
@@ -110,7 +222,7 @@ d3.json("data/chicago_grid.topojson", function(error, grid) {
   }
 });
 
-d3.json("data/comm_bboxes.topojson", function(error, bboxes) {
+d3.json(baseUrl + "/data/comm_bboxes.topojson", function(error, bboxes) {
   var features = bboxes.objects.comm_bboxes.geometries.map(function(d) {
     return topojson.feature(bboxes, d);
   });
@@ -128,12 +240,22 @@ function projectPoint(x, y) {
   this.stream.point(point.x, point.y);
 }
 
-d3.csv("data/april_2013_grid_15min_mdw.csv", function(data) {
+d3.csv(baseUrl + "/data/april_2013_grid_15min_mdw.csv", function(data) {
    dataset = data.map(function(d) {
      // Overly complicated one-liner to get the timestamp as first item, then get
      // array of all values in order without keys
      return [d["timestamp"], d["midway_precip"]].concat(Object.keys(d).slice(0,-2).map(function(k){return parseFloat(d[k]);}));
    });
+   precipChartData = data.filter(function(d) {
+     return d.midway_precip > 0;}
+   ).map(function(d) {
+     var item = {
+       time: makeDate(d.timestamp),
+       precip: d.midway_precip
+     };
+     return item;
+   });
+   makeTimeChart(precipChartData);
 });
 
 var rainCount = 0.0;
@@ -151,6 +273,7 @@ function updateTime() {
     }
     timeRow = dataset[timeIdx];
     var date = makeDate(dataset[timeIdx][0]);
+    d3.select("#line-clip rect").attr("width", x(date));
     unixDate = Math.floor(date/1000);
     dateNotice.innerHTML = "<p>" + date.toLocaleDateString() + "</p><p>" + date.toLocaleTimeString() + "</p>";
     rainCount += parseFloat(dataset[timeIdx][1]);
@@ -292,13 +415,21 @@ var callCountSpan = document.getElementById('flood-counter');
 
 function addCallData() {
   // Based off of http://chriswhong.com/projects/phillybiketheft/
-  d3.csv("data/april_2013_wib_calls.csv", function(collection) {
+  d3.csv(baseUrl + "/data/april_2013_wib_calls.csv", function(collection) {
     /* Add a LatLng object to each item in the dataset */
     collection.forEach(function(d) {
       var loc = makePoint(pathBounds[d.comm_area]);
       d.UnixDate = Math.floor(makeDate(d.timestamp)/1000);
       d.LatLng = new L.LatLng(loc.y,loc.x);
     });
+
+    callChartData = d3.nest()
+      .key(function(d) { return roundMinutes(makeDate(d.timestamp)); })
+      .rollup(function(v) { return v.length; })
+      .entries(collection)
+      .map(function(d) { return { time: Date.parse(d.key), calls: d.values }; });
+
+    makeCallTimeChart(callChartData);
 
     function update() {
       grab = collection.filter(function(d){
@@ -338,7 +469,7 @@ function addCallData() {
   });
 }
 
-d3.json("data/mwrd_riverways.geojson", function(data) {
+d3.json(baseUrl + "/data/mwrd_riverways.geojson", function(data) {
   csoData = data;
 
   map.on("viewreset", resetCso);
@@ -363,20 +494,29 @@ d3.json("data/mwrd_riverways.geojson", function(data) {
   addEventData();
 });
 
-var csoCount = 0;
 var csoCountSpan = document.getElementById('cso-counter');
 
 function addEventData() {
-  d3.csv("data/april_2013_cso.csv", function(collection) {
-    var csoFeatures = collection.map(function(d) {
+  d3.csv(baseUrl + "/data/april_2013_cso.csv", function(collection) {
+    var csoFeatures = [];
+    for (var i = 0; i < collection.length; ++i) {
+      var d = collection[i];
       var feature = getSegment(parseInt(d.river_segment_id));
       if (feature !== null) {
+        feature.properties.id = i;
         feature.properties.unixOpen = Math.floor(makeDate(d.open_timestamp)/1000);
         feature.properties.unixClose = Math.floor(makeDate(d.close_timestamp)/1000);
-        return feature;
+        csoFeatures.push(feature);
       }
-      return null;
-    }).filter(function(d) { return d != null; });
+    }
+
+    csoChartData = d3.nest()
+      .key(function(d) { return roundMinutes(makeDate(d.open_timestamp)); })
+      .rollup(function(v) { return v.length; })
+      .entries(collection)
+      .map(function(d) { return {time: Date.parse(d.key), events: d.values };});
+
+    makeCsoTimeChart(csoChartData);
 
     function getSegment(segmentId) {
       var feature = null;
@@ -389,14 +529,15 @@ function addEventData() {
     }
 
     function update() {
+      // TODO: some items are very brief, skew data because don't appear
       grab = csoFeatures.filter(function(d){
-        return (d.properties.unixClose >= unixDate)&&(d.properties.unixOpen <= unixDate);
+        return (d.properties.unixOpen <= unixDate)&&(d.properties.unixClose > unixDate);
       });
       filtered = grab;
 
       // Return ID as value, so that even if the timestamp exists already still adds
       csoFeature = csoG.selectAll("path.cso-data")
-        .data(filtered, function(d) { return d.properties.SEGMENT_ID});
+        .data(filtered, function(d) { return d.properties.id; });
 
       csoFeature.enter()
         .append("path")
@@ -407,10 +548,9 @@ function addEventData() {
         .attr("stroke", "url(#animate-gradient)");
 
       countFilter = csoFeatures.filter(function(d) {
-        return (d.properties.unixOpen <= unixDate)&&(d.properties.unixOpen > (unixDate - 900));
+        return (d.properties.unixOpen <= unixDate);
       });
-      csoCount += countFilter.length;
-      csoCountSpan.textContent = csoCount.toString();
+      csoCountSpan.textContent = countFilter.length.toString();
 
       csoFeature.exit()
         .transition()

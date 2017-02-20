@@ -1,20 +1,20 @@
 ---
 layout: default
-js_file: script.js
+js_file: rain-animation.js
 title: Rain Viz
 permalink: /
 ---
-<div id="map" class="d3-map"></div>
+<div id="map" class="d3-map viz-splash"></div>
 <a role="button" data-toggle="collapse" href=".collapse-legend" aria-expanded="false" aria-controls="collapse-legend">
-  <svg width="32" height="32" id="info">
-    <circle cx="16" cy="16" r="15" fill="#000" />
+  <svg width="32" height="32" id="info" class="viz-splash">
+    <circle cx="16" cy="16" r="15" fill="#6095c8" />
     <path class="path1 collapse collapse-legend" d="M14 9.5c0-0.825 0.675-1.5 1.5-1.5h1c0.825 0 1.5 0.675 1.5 1.5v1c0 0.825-0.675 1.5-1.5 1.5h-1c-0.825 0-1.5-0.675-1.5-1.5v-1z"></path>
     <path class="path2 collapse collapse-legend" d="M20 24h-8v-2h2v-6h-2v-2h6v8h2z"></path>
     <path class="path4 collapse collapse-legend in" d="M22.911 20.271c-0-0-0-0-0-0l-4.271-4.271 4.271-4.271c0-0 0-0 0-0 0.046-0.046 0.079-0.1 0.101-0.157 0.058-0.156 0.025-0.339-0.101-0.465l-2.017-2.017c-0.126-0.126-0.309-0.159-0.465-0.101-0.057 0.021-0.111 0.055-0.157 0.1 0 0-0 0-0 0l-4.271 4.271-4.271-4.271c-0-0-0-0-0-0-0.046-0.046-0.1-0.079-0.157-0.1-0.156-0.058-0.339-0.025-0.465 0.101l-2.018 2.018c-0.126 0.126-0.159 0.309-0.101 0.465 0.021 0.057 0.055 0.111 0.101 0.157 0 0 0 0 0 0l4.271 4.271-4.271 4.271c-0 0-0 0-0 0-0.046 0.046-0.079 0.1-0.101 0.157-0.058 0.156-0.025 0.339 0.101 0.465l2.018 2.017c0.126 0.126 0.309 0.159 0.465 0.101 0.057-0.021 0.111-0.055 0.157-0.101 0-0 0-0 0-0l4.271-4.271 4.271 4.271c0 0 0 0 0 0 0.046 0.046 0.1 0.079 0.157 0.101 0.156 0.058 0.339 0.025 0.465-0.101l2.017-2.017c0.126-0.126 0.159-0.309 0.101-0.465-0.021-0.057-0.055-0.111-0.101-0.157z"></path>
     <path class="path3" d="M16 0c-8.837 0-16 7.163-16 16s7.163 16 16 16 16-7.163 16-16-7.163-16-16-16zM16 29c-7.18 0-13-5.82-13-13s5.82-13 13-13 13 5.82 13 13-5.82 13-13 13z"></path>
   </svg>
 </a>
-<div class="collapse in leaflet-top leaflet-right top-legend collapse-legend">
+<div class="collapse in leaflet-top leaflet-right top-legend viz-splash collapse-legend">
   <div class="info leaflet-control">
     <h4 id="date"><p>M/DD/YYYY</p><p>HH:MM AM</p></h4>
     <table class="table">
@@ -47,3 +47,67 @@ permalink: /
     </table>
   </div>
 </div>
+<div class="time-chart viz-splash"></div>
+<div class="col-md-6 viz-right">
+  <h2>This is what a heavy rain in Chicago looks like.</h2>
+  <h4>We design our infrastructure for storms, but are we underplanning for a
+    changing climate?</h4>
+  <a href="{{ site.baseurl }}/viz" id="splash-button">
+      <button class="btn" type="button">See Animation</button>
+  </a>
+  <h3>More Intense Storms</h3>
+  <p>The "n-year storm" (i.e. 5-year storm, 50-year storm) is a measure for
+  estimating how often severe storms should happen. Essentially, a 50 year storm
+  is a storm that has a 2% chance of happening in any given year over a 100 year
+  period.</p>
+  <p>While it's not something most people would have heard of, it definitely has
+  consequences, particularly in planning new infrastucture. New construction projects
+  like sewers are often designed with the assumption that a storm as severe as a
+  100 year storm should only happen about once every 100 years.</p>
+  <p>The idea of the n-year storm makes sense for planning, except for one thing:
+  <a href="http://www.isws.illinois.edu/atmos/statecli/RF/rf.htm" target="_blank">it hasn't been
+  updated for this area since 1992</a>. Since then, climate change has dramatically
+  changed weather patterns around the world, and the Chicago area is no exception.</p>
+  <p>The Chicago area has had <i>3 100-year storms in the past 46 years alone</i>,
+  2 of which happened in the 10 years. And it's not just the 100 year storm, we've
+  seen multiple 25 and 50 year storms as well.</p>
+  <h3>Sewer Overflows</h3>
+  <p>The sewer system in Chicago is one of the main pieces of infrastructure designed
+  based partially off of estimated n-year storm levels. N-year storm levels shape
+  how much sewage they're designed to handle at a given time. When they're overwhelmed,
+  as they often are by rain during a severe storm event, the sewage has to go
+  somewhere—often back in the Chicago river.</p>
+  <p>When this happens, it's called a combined sewer overflow (or CSO), and it's
+  performed by Chicagoland water management agencies to prevent flooding. There
+  have been efforts to prevent them, so they haven't increased as quickly as storm
+  intensity has over time, but planning is still based on outdated estimates of
+  precipitation.</p>
+  <h3>Basement Flooding</h3>
+  <p>Combined sewer overflows are intended to stop flooding, but in different areas
+  across the city they're not always successful. This leads to basement flooding
+  throughout Chicago that can often lead to serious property damage.</p>
+  <p>While Chicago isn't the first place associated with flooding, basement flooding
+  is a serious problem for many residents. In particular, flooding seems to be
+  concentrated in lower-income neighborhoods in the South and West sides of the
+  city. City government and other organizations have created multiple efforts,
+  <a href="https://www.cityofchicago.org/city/en/depts/water/supp_info/basement_floodingpartnership.html"
+  target="_blank">notably the Basement Flooding Partnership</a> and <a href="http://www.cnt.org/projects/rainready"
+  target="_blank">the Center for Neighborhood Technology's RainReady program</a>
+  to address this, but it remains a persistent problem, especially in these neighborhoods.</p>
+  <p>Although there are no clear answers to exactly why flooding is concentrated
+  lower-income neighborhoods, the answers may not lie entirely with weather or the
+  sewer system. Further research is needed, but there are notable correlations
+  with some indicators of building quality in a neighborhood, including building
+  values and the number of foreclosures over time. <a href="/flooding">See a map
+  of basement flooding across the city here</a>.</p>
+  <h3>About this Project</h3>
+  <p>This is an open source data science project through <a href="http://www.norc.org/Pages/default.aspx"
+  target="_blank">NORC at the University of Chicago</a>. Contributors are welcome,
+  and the code for <a href="https://github.com/NORCatUofC/rainapp" target="_blank">
+  this website</a> and <a href="https://github.com/NORCatUofC/rain" target="_blank">
+  the main repo for our data collection, cleaning, and analysis</a> are on GitHub.</p>
+</div>
+<script>
+  var initialZoom = 11;
+  var baseUrl = "{{site.baseurl}}"
+</script>

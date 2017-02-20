@@ -8,6 +8,12 @@
     </div>
     {% include footer.html %}
   </body>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.js"></script>
+  <script src="{{ site.baseurl }}/js/leaflet.js"></script>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="{{ site.baseurl }}/js/leaflet_canvas_layer.js"></script>
   {% if page.js_file %}
   <script src="{{ site.baseurl }}/js/{{ page.js_file }}"></script>
   {% endif %}
