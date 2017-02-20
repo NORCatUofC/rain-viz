@@ -269,6 +269,7 @@ function updateTime() {
       intervalArr.forEach(function(d) { clearInterval(d); });
       csoG.selectAll("path").remove();
       g.selectAll("canvas").remove();
+      map.removeLayer(rainLayer);
       return;
     }
     timeRow = dataset[timeIdx];
@@ -620,7 +621,7 @@ function makeLegendRain() {
     }
   }
 
-  setInterval(draw, 100);
+  intervalArr.push(setInterval(draw, 100));
 }
 
 makeLegendRain();
